@@ -9,7 +9,7 @@ class Longformer:
     def __init__(self, max_length = None) -> None:
         self.tokenizer = LongformerTokenizer.from_pretrained("potsawee/longformer-large-4096-answering-race")
         self.model = LongformerForMultipleChoice.from_pretrained("potsawee/longformer-large-4096-answering-race")
-        self.max_seq_length= 1024 if not max_length else max_length #max 4086
+        self.max_seq_length= 2048 if not max_length else max_length #max 4086
         self.device = "cpu" #"cuda:0" if torch.cuda.is_available() else "cpu"
         #self.model.to(self.device)
     
@@ -52,7 +52,7 @@ class Longformer:
         return tokenized_examples
     
 class RobertaLarge:
-    def __init__(self) -> None:
+    def __init__(self, max_length = None) -> None:
         self.tokenizer = RobertaTokenizer.from_pretrained("LIAMF-USP/roberta-large-finetuned-race")
         self.model = RobertaForMultipleChoice.from_pretrained("LIAMF-USP/roberta-large-finetuned-race")
         self.max_seq_length=512 if not max_length else max_length
