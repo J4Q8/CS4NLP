@@ -9,7 +9,7 @@ class Longformer:
     def __init__(self, max_length = None) -> None:
         self.tokenizer = LongformerTokenizer.from_pretrained("potsawee/longformer-large-4096-answering-race")
         self.model = LongformerForMultipleChoice.from_pretrained("potsawee/longformer-large-4096-answering-race")
-        self.max_seq_length= 4096 if not max_length else max_length
+        self.max_seq_length= 1024 if not max_length else max_length #max 4086
         self.device = "cpu" #"cuda:0" if torch.cuda.is_available() else "cpu"
         #self.model.to(self.device)
     
