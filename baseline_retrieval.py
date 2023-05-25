@@ -4,8 +4,11 @@ import numpy as np
 import random
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+# TODO: make sure that the tokens used for questions, answers and special are accounted for in max token
 
-def random_sentence_cut(article, tokenizer, MAX_TOKENS=512, *args, **kwargs):
+def random_sentence_cut(article, tokenizer, MAX_TOKENS=512, extra_length = 0, *args, **kwargs):
+
+  MAX_TOKENS = MAX_TOKENS - extra_length
  
   sentences = article.split(". ")
 
@@ -34,7 +37,9 @@ def random_sentence_cut(article, tokenizer, MAX_TOKENS=512, *args, **kwargs):
   return " ".join(selected_sentences)
 
 
-def start_ending_biased_sentece_cut(article, tokenizer, MAX_TOKENS=512, *args, **kwargs):
+def start_ending_biased_sentece_cut(article, tokenizer, MAX_TOKENS=512, extra_length = 0, *args, **kwargs):
+
+  MAX_TOKENS = MAX_TOKENS - extra_length
 
   sentences = article.split(". ")
   num_sentences = len(sentences)
@@ -66,7 +71,9 @@ def start_ending_biased_sentece_cut(article, tokenizer, MAX_TOKENS=512, *args, *
   return " ".join(selected_sentences)
 
 
-def tf_idf_sentece_cut(article, tokenizer, query, MAX_TOKENS = 512, *args, **kwargs):
+def tf_idf_sentece_cut(article, tokenizer, query, MAX_TOKENS = 512, extra_length = 0, *args, **kwargs):
+
+  MAX_TOKENS = MAX_TOKENS - extra_length
 
   sentences = article.split(". ")
   num_sentences = len(sentences)
