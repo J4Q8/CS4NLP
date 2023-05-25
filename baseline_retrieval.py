@@ -4,13 +4,14 @@ import numpy as np
 import random
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-# TODO: make sure that the tokens used for questions, answers and special are accounted for in max token
 
 def random_sentence_cut(article, tokenizer, MAX_TOKENS=512, extra_length = 0, *args, **kwargs):
 
   MAX_TOKENS = MAX_TOKENS - extra_length
  
   sentences = article.split(". ")
+  sentences = sentences[:-1] if not sentences[-1].strip() else sentences
+  sentences = [sentence + "." for sentence in sentences]
 
   # get the permutation of the sentences
   num_sentences = len(sentences)
@@ -42,6 +43,8 @@ def start_ending_biased_sentece_cut(article, tokenizer, MAX_TOKENS=512, extra_le
   MAX_TOKENS = MAX_TOKENS - extra_length
 
   sentences = article.split(". ")
+  sentences = sentences[:-1] if not sentences[-1].strip() else sentences
+  sentences = [sentence + "." for sentence in sentences]
   num_sentences = len(sentences)
   sentence_list = list(range(num_sentences))
 
@@ -76,14 +79,15 @@ def tf_idf_sentece_cut(article, tokenizer, query, MAX_TOKENS = 512, extra_length
   MAX_TOKENS = MAX_TOKENS - extra_length
 
   sentences = article.split(". ")
+  sentences = sentences[:-1] if not sentences[-1].strip() else sentences
   num_sentences = len(sentences)
 
   # tf_idf
-  vectorizer = TfidfVectorizer()
+  vectorizer = TfidfVectorizer(analyzer='char_wb', ngram_range=(4,6))
   tf_idf = vectorizer.fit_transform(sentences)
   query_vector = vectorizer.transform([query])
   cos_sim = lambda a,b : dot(a, b)/(norm(a)*norm(b))
-  cosine_similarities = np.array([cos_sim(tf_idf[i].toarray(), query_vector) for i in range(num_sentences)])
+  cosine_similarities = np.array([cos_sim(tf_idf[i].toarray().flatten(), query_vector.toarray().flatten()) for i in range(num_sentences)])
   sentence_list = np.argsort(cosine_similarities)[::-1]
 
   assert len(sentence_list) == num_sentences
@@ -93,7 +97,7 @@ def tf_idf_sentece_cut(article, tokenizer, query, MAX_TOKENS = 512, extra_length
 
   # get the closest sentences to tf_idf
   for sentence_idx in sentence_list:
-    tokens = tokenizer.tokenize(sentences[sentence_idx])
+    tokens = tokenizer.tokenize(sentences[sentence_idx] + ".")
     num_tokens = len(tokens)
     if total_tokens == MAX_TOKENS:
       break
@@ -107,4 +111,4 @@ def tf_idf_sentece_cut(article, tokenizer, query, MAX_TOKENS = 512, extra_length
   selected_sentences.sort()
   selected_sentences = [sentences[i] for i in selected_sentences]
 
-  return " ".join(selected_sentences)
+  return ". ".join(selected_sentences) + "."

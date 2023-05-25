@@ -18,10 +18,10 @@ class Longformer:
         return self.tokenizer
 
     def get_extra_input_length(self, question, options):
-        return self.prepare_answering_input(question=question, options=options, context=" ")["input_ids"].shape[-1]
+        return max([self.prepare_answering_input(question=question, options=option, context=" ")["input_ids"].shape[-1] for option in options])
 
     def predict(self, context, question, options):
-        inputs = self.prepare_answering_input(tokenizer=self.tokenizer, question=question, options=options, context=context)
+        inputs = self.prepare_answering_input(question=question, options=options, context=context)
         outputs = self.model(**inputs)
         prob = torch.softmax(outputs.logits, dim=-1)[0].tolist()
         return np.argmax(prob)
@@ -62,7 +62,7 @@ class RobertaLarge:
         return self.tokenizer
     
     def get_extra_input_length(self, question, options):
-        return self.prepare_answering_input(question=question, options=options, context=" ")["input_ids"].shape[-1]
+        return max([self.prepare_answering_input(question=question, options=option, context=" ")["input_ids"].shape[-1] for option in options])
     
     def predict(self, context, question, options):
         inputs = self.prepare_answering_input(question=question, options=options, context=context)
@@ -83,11 +83,10 @@ class RobertaLarge:
             question_option,
             add_special_tokens=True,
             max_length=self.max_seq_length,
-            padding="max_length",
+            padding="longest",
             truncation=True,
-            return_overflowing_tokens=False,
+            return_tensors = 'pt'
         )    
-
         input_ids = inputs['input_ids'].unsqueeze(0)
         attention_mask = inputs['attention_mask'].unsqueeze(0)
         encoded = {
@@ -95,3 +94,25 @@ class RobertaLarge:
             "attention_mask": attention_mask,
         }
         return encoded
+
+
+# #Deberta 
+#     from transformers import AutoModel, AutoModelForSequenceClassification, TextClassificationPipeline, AutoTokenizer
+#     model_name = "sileod/deberta-v3-base-tasksource-nli"
+#     task_name = "cosmos_qa"
+#     task = tasksource.load_task(task_name)
+#     model = AutoModelForSequenceClassification.from_pretrained(model_name,ignore_mismatched_sizes=True)
+#     adapter = Adapter.from_pretrained(model_name.replace('-nli','')+'-adapters')
+#     tokenizer = AutoTokenizer.from_pretrained(model_name)
+#     model = adapter.adapt_model_to_task(model, task_name)
+#     model.config.id2label=str(task['train'].features['labels'])
+
+#     task_index = adapter.config.tasks.index(task_name)
+
+#     with torch.no_grad():
+#         model.deberta.embeddings.word_embeddings.weight[tokenizer.cls_token_id]+=adapter.Z[task_index]
+
+#     #can do model inference now yay!
+
+#     pipe = TextClassificationPipeline(
+#     model=model, tokenizer=tokenizer)
