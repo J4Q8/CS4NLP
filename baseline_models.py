@@ -10,6 +10,8 @@ class Longformer:
         self.tokenizer = LongformerTokenizer.from_pretrained("potsawee/longformer-large-4096-answering-race")
         self.model = LongformerForMultipleChoice.from_pretrained("potsawee/longformer-large-4096-answering-race")
         self.max_seq_length=4096
+        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        self.model.to(self.device)
     
     def get_max_seq_length(self):
         return self.max_seq_length
@@ -21,7 +23,7 @@ class Longformer:
         return self.prepare_answering_input(question=question, options=options, context=" ")["input_ids"].shape[-1]
 
     def predict(self, context, question, options):
-        inputs = self.prepare_answering_input(question=question, options=options, context=context)
+        inputs = self.prepare_answering_input(question=question, options=options, context=context).to(self.device)
         outputs = self.model(**inputs)
         prob = torch.softmax(outputs.logits, dim=-1)[0].tolist()
         return np.argmax(prob)
@@ -54,6 +56,8 @@ class RobertaLarge:
         self.tokenizer = RobertaTokenizer.from_pretrained("LIAMF-USP/roberta-large-finetuned-race")
         self.model = RobertaForMultipleChoice.from_pretrained("LIAMF-USP/roberta-large-finetuned-race")
         self.max_seq_length=512
+        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        self.model.to(self.device)
 
     def get_max_seq_length(self):
         return self.max_seq_length
@@ -65,7 +69,7 @@ class RobertaLarge:
         return self.prepare_answering_input(question=question, options=options, context=" ")["input_ids"].shape[-1]
     
     def predict(self, context, question, options):
-        inputs = self.prepare_answering_input(question=question, options=options, context=context)
+        inputs = self.prepare_answering_input(question=question, options=options, context=context).to(self.device)
         outputs = self.model(**inputs)
         prob = torch.softmax(outputs.logits, dim=-1)[0].tolist()
         return np.argmax(prob)
