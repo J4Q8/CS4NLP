@@ -18,7 +18,7 @@ class Longformer:
         return self.tokenizer
 
     def get_extra_input_length(self, question, options):
-        return max([self.prepare_answering_input(question=question, options=option, context=" ")["input_ids"].shape[-1] for option in options])
+        return self.prepare_answering_input(question=question, options=options, context=" ")["input_ids"].shape[-1]
 
     def predict(self, context, question, options):
         inputs = self.prepare_answering_input(question=question, options=options, context=context)
@@ -62,7 +62,7 @@ class RobertaLarge:
         return self.tokenizer
     
     def get_extra_input_length(self, question, options):
-        return max([self.prepare_answering_input(question=question, options=option, context=" ")["input_ids"].shape[-1] for option in options])
+        return self.prepare_answering_input(question=question, options=options, context=" ")["input_ids"].shape[-1]
     
     def predict(self, context, question, options):
         inputs = self.prepare_answering_input(question=question, options=options, context=context)
