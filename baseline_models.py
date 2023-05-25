@@ -6,12 +6,12 @@ from transformers import RobertaTokenizer, RobertaForMultipleChoice
 from transformers import AutoModelWithLMHead, AutoTokenizer
 
 class Longformer:
-    def __init__(self) -> None:
+    def __init__(self, max_length = None) -> None:
         self.tokenizer = LongformerTokenizer.from_pretrained("potsawee/longformer-large-4096-answering-race")
         self.model = LongformerForMultipleChoice.from_pretrained("potsawee/longformer-large-4096-answering-race")
-        self.max_seq_length=4096
-        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        self.model.to(self.device)
+        self.max_seq_length= 4096 if not max_length else max_length
+        self.device = "cpu" #"cuda:0" if torch.cuda.is_available() else "cpu"
+        #self.model.to(self.device)
     
     def get_max_seq_length(self):
         return self.max_seq_length
@@ -22,10 +22,14 @@ class Longformer:
     def get_extra_input_length(self, question, options):
         return self.prepare_answering_input(question=question, options=options, context=" ")["input_ids"].shape[-1]
 
-    def predict(self, context, question, options):
-        inputs = self.prepare_answering_input(question=question, options=options, context=context).to(self.device)
+    def logits(self, context, question, options):
+        inputs = self.prepare_answering_input(question=question, options=options, context=context)#.to(self.device)
         outputs = self.model(**inputs)
-        prob = torch.softmax(outputs.logits, dim=-1)[0].tolist()
+        return outputs.logits
+
+    def predict(self, context, question, options):
+        outputs = self.logits(question=question, options=options, context=context)
+        prob = torch.softmax(outputs, dim=-1)[0].tolist()
         return np.argmax(prob)
 
     def prepare_answering_input(
@@ -43,21 +47,17 @@ class Longformer:
             truncation=True,
             return_tensors="pt",
         )
-        input_ids = tokenized_examples['input_ids'].unsqueeze(0)
-        attention_mask = tokenized_examples['attention_mask'].unsqueeze(0)
-        example_encoded = {
-            "input_ids": input_ids,
-            "attention_mask": attention_mask,
-        }
-        return example_encoded
+        tokenized_examples['input_ids'] = tokenized_examples['input_ids'].unsqueeze(0)
+        tokenized_examples['attention_mask'] = tokenized_examples['attention_mask'].unsqueeze(0)
+        return tokenized_examples
     
 class RobertaLarge:
     def __init__(self) -> None:
         self.tokenizer = RobertaTokenizer.from_pretrained("LIAMF-USP/roberta-large-finetuned-race")
         self.model = RobertaForMultipleChoice.from_pretrained("LIAMF-USP/roberta-large-finetuned-race")
-        self.max_seq_length=512
-        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        self.model.to(self.device)
+        self.max_seq_length=512 if not max_length else max_length
+        self.device = "cpu" #"cuda:0" if torch.cuda.is_available() else "cpu"
+        #self.model.to(self.device)
 
     def get_max_seq_length(self):
         return self.max_seq_length
@@ -68,10 +68,14 @@ class RobertaLarge:
     def get_extra_input_length(self, question, options):
         return self.prepare_answering_input(question=question, options=options, context=" ")["input_ids"].shape[-1]
     
-    def predict(self, context, question, options):
-        inputs = self.prepare_answering_input(question=question, options=options, context=context).to(self.device)
+    def logits(self, context, question, options):
+        inputs = self.prepare_answering_input(question=question, options=options, context=context)#.to(self.device)
         outputs = self.model(**inputs)
-        prob = torch.softmax(outputs.logits, dim=-1)[0].tolist()
+        return outputs.logits
+
+    def predict(self, context, question, options):
+        outputs = self.logits(question=question, options=options, context=context)
+        prob = torch.softmax(outputs, dim=-1)[0].tolist()
         return np.argmax(prob)
     
     def prepare_answering_input(
@@ -91,13 +95,9 @@ class RobertaLarge:
             truncation=True,
             return_tensors = 'pt'
         )    
-        input_ids = inputs['input_ids'].unsqueeze(0)
-        attention_mask = inputs['attention_mask'].unsqueeze(0)
-        encoded = {
-            "input_ids": input_ids,
-            "attention_mask": attention_mask,
-        }
-        return encoded
+        inputs['input_ids'] = inputs['input_ids'].unsqueeze(0)
+        inputs['attention_mask'] = inputs['attention_mask'].unsqueeze(0)
+        return inputs
 
 
 # #Deberta 
