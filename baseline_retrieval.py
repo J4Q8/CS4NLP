@@ -11,7 +11,7 @@ def split_text_into_sentences(text):
   sentences = [string for string in sentences if string] # remove empty strings ""
   sentences = sentences[:-1] if not sentences[-1].strip() else sentences # make sure last sentece is not empty
   sentences = [sentence if sentence.endswith(".") else sentence + ". " for sentence in sentences] # last sentence usually just ends with "." instead of ". ", do not add delimiter for them
-
+  return sentences
 
 def split_text_into_chunks(text, max_token_size):
     
