@@ -11,7 +11,7 @@ class Longformer:
         self.model = LongformerForMultipleChoice.from_pretrained("potsawee/longformer-large-4096-answering-race")
         self.max_seq_length = 4098 if not max_length else max_length #max 4086
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        self.model.to(self.device)
+        self.model = self.model.to(self.device)
     
     def get_max_seq_length(self):
         return self.max_seq_length
@@ -58,7 +58,7 @@ class RobertaLarge:
         self.model = RobertaForMultipleChoice.from_pretrained("LIAMF-USP/roberta-large-finetuned-race")
         self.max_seq_length = 512 if not max_length else max_length
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        self.model.to(self.device)
+        self.model = self.model.to(self.device)
 
     def get_max_seq_length(self):
         return self.max_seq_length
