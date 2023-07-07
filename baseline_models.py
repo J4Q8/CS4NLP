@@ -39,13 +39,13 @@ class Longformer:
         options,   # List[str]
         context,   # str
     ):
-        c_plus_q   = context + ' ' + self.tokenizer.bos_token + ' ' + question 
-        c_plus_q_4 = [c_plus_q] * len(options)
+        context = [context] * len(options)
+        question_option = [question + " " + option for option in options]
         tokenized_examples = self.tokenizer(
-            c_plus_q_4, options,
+            context, question_option,
             max_length=self.max_seq_length,
             padding="longest",
-            truncation="only_first",
+            truncation=True,
             return_tensors="pt",
         )
         tokenized_examples['input_ids'] = tokenized_examples['input_ids'].unsqueeze(0)
@@ -94,7 +94,7 @@ class RobertaLarge:
             add_special_tokens=True,
             max_length=self.max_seq_length,
             padding="longest",
-            truncation="only_first",
+            truncation=True,
             return_tensors = 'pt'
         )    
         inputs['input_ids'] = inputs['input_ids'].unsqueeze(0)
