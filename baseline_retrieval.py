@@ -69,9 +69,9 @@ def random_sentence_cut(article, tokenizer, MAX_TOKENS=512, extra_length = 0, ch
 
   # use the senteces in the original order
   selected_sentences.sort()
-  selected_sentences = [sentences[i] for i in selected_sentences]
+  final_sentences = [sentences[i] for i in selected_sentences]
 
-  return " ".join(selected_sentences), selected_sentences
+  return " ".join(final_sentences), selected_sentences
 
 
 def start_ending_biased_sentece_cut(article, tokenizer, MAX_TOKENS=512, extra_length = 0, chunk_size = 256, *args, **kwargs):
@@ -103,9 +103,9 @@ def start_ending_biased_sentece_cut(article, tokenizer, MAX_TOKENS=512, extra_le
 
   # use the senteces in the original order
   selected_sentences.sort()
-  selected_sentences = [sentences[i] for i in selected_sentences]
+  final_sentences = [sentences[i] for i in selected_sentences]
 
-  return " ".join(selected_sentences), selected_sentences
+  return " ".join(final_sentences), selected_sentences
 
 
 def tf_idf_sentece_cut(article, tokenizer, query, MAX_TOKENS = 512, extra_length = 0, chunk_size = 256, *args, **kwargs):
@@ -142,9 +142,9 @@ def tf_idf_sentece_cut(article, tokenizer, query, MAX_TOKENS = 512, extra_length
 
   # use the senteces in the original order
   selected_sentences.sort()
-  selected_sentences = [sentences[i] for i in selected_sentences]
+  final_sentences = [sentences[i] for i in selected_sentences]
 
-  return " ".join(selected_sentences), selected_sentences
+  return " ".join(final_sentences), selected_sentences
 
 
 def sentence_embedding_cut(article, tokenizer, query, MAX_TOKENS = 512, extra_length = 0, chunk_size = 256, sentembb_model = None, *args, **kwargs):
@@ -205,6 +205,6 @@ def sentence_embedding_cut(article, tokenizer, query, MAX_TOKENS = 512, extra_le
 
     # use the senteces in the original order
     selected_sentences.sort()
-    selected_sentences = [sentences[i] for i in selected_sentences]
+    final_sentences = [sentences[i] for i in selected_sentences]
 
-    return " ".join(selected_sentences), selected_sentences
+    return " ".join(final_sentences), selected_sentences
