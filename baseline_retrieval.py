@@ -71,7 +71,7 @@ def random_sentence_cut(article, tokenizer, MAX_TOKENS=512, extra_length = 0, ch
   selected_sentences.sort()
   final_sentences = [sentences[i] for i in selected_sentences]
 
-  return " ".join(final_sentences), selected_sentences
+  return "".join(final_sentences), selected_sentences
 
 
 def start_ending_biased_sentece_cut(article, tokenizer, MAX_TOKENS=512, extra_length = 0, chunk_size = 256, *args, **kwargs):
@@ -105,7 +105,7 @@ def start_ending_biased_sentece_cut(article, tokenizer, MAX_TOKENS=512, extra_le
   selected_sentences.sort()
   final_sentences = [sentences[i] for i in selected_sentences]
 
-  return " ".join(final_sentences), selected_sentences
+  return "".join(final_sentences), selected_sentences
 
 
 def tf_idf_sentece_cut(article, tokenizer, query, MAX_TOKENS = 512, extra_length = 0, chunk_size = 256, *args, **kwargs):
@@ -144,7 +144,7 @@ def tf_idf_sentece_cut(article, tokenizer, query, MAX_TOKENS = 512, extra_length
   selected_sentences.sort()
   final_sentences = [sentences[i] for i in selected_sentences]
 
-  return " ".join(final_sentences), selected_sentences
+  return "".join(final_sentences), selected_sentences
 
 
 def sentence_embedding_cut(article, tokenizer, query, MAX_TOKENS = 512, extra_length = 0, chunk_size = 256, sentembb_model = None, *args, **kwargs):
@@ -154,39 +154,14 @@ def sentence_embedding_cut(article, tokenizer, query, MAX_TOKENS = 512, extra_le
 
     query_embedding = sentembb_model.encode(query)
 
-    batch_size = 500
-    num_sentences = len(sentences)
-    num_batches = int(np.ceil(num_sentences / batch_size))
+    corpus_embeddings = sentembb_model.encode(sentences)
 
-    similarity_scores = []
-
-    # get all passage embeddings in batches
-    for i in range(num_batches):
-      start_index = i * batch_size
-      end_index = min((i + 1) * batch_size, num_sentences)
-
-      # Get the batch of sentences
-      batch_sentences = sentences[start_index:end_index]
-
-      # Encode the batch of sentences into embeddings
-      batch_embeddings = sentembb_model.encode(batch_sentences)
-
-      # Append the batch embeddings to the list
-      #passage_embedding.extend(batch_embeddings)
-
-      similarity = util.cos_sim(query_embedding, batch_embeddings).numpy()[0]
-      similarity_scores.extend(similarity)
-    #passage_embedding = sentembb_model.encode(sentences)
-
-    #similarity = util.cos_sim(query_embedding, passage_embedding).numpy()[0]
-    #print("Similarity:", similarity_scores)
+    similarity_scores = util.cos_sim(query_embedding, corpus_embeddings)[0]
 
     result = list(zip(range(0, len(sentences)), similarity_scores))
 
     # sort them by similarity score
     sentences_sortby_similarity = sorted(result, key=lambda x: x[1], reverse=True)
-    #print(sentences_sortby_similarity)
-
 
     selected_sentences = []
     total_tokens = 0
@@ -202,9 +177,7 @@ def sentence_embedding_cut(article, tokenizer, query, MAX_TOKENS = 512, extra_le
         else:
             break
 
-
     # use the senteces in the original order
     selected_sentences.sort()
     final_sentences = [sentences[i] for i in selected_sentences]
-
-    return " ".join(final_sentences), selected_sentences
+    return "".join(final_sentences), selected_sentences
