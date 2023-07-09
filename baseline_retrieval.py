@@ -4,6 +4,7 @@ import numpy as np
 import random
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sentence_transformers import SentenceTransformer, util
+import pickle
 
 def split_text_into_sentences(text):
   text = text.replace("\n", "") # replace linebreaks
@@ -13,11 +14,39 @@ def split_text_into_sentences(text):
   sentences = [sentence if sentence.endswith(".") else sentence + ". " for sentence in sentences] # last sentence usually just ends with "." instead of ". ", do not add delimiter for them
   return sentences
 
-def split_text_into_chunks(text, max_token_size):
+def split_text_into_sentece_clusters(text, idx, cluster_file = "sentence_clusters.pkl"):
+  with open(cluster_file, "rb") as fp:
+    clusters = pickle.load(fp)
+
+  cluster = clusters[idx]
+  sentences = split_text_into_sentences(text)
+  sentence_clusters = []
+  
+  current_cluster = []
+  for c_idx in range(len(cluster)-1):
+    if cluster[c_idx] == cluster[c_idx+1]:
+      current_cluster.append(sentences[c_idx])
+    else:
+      current_cluster.append(sentences[c_idx])
+      sentence_clusters.append(current_cluster)
+      current_cluster = []
+  
+  current_cluster.append(sentences[len(cluster)-1])
+  sentence_clusters.append(current_cluster)
+
+  print(cluster)
+  print(sentences)
+  return sentence_clusters
+
+def split_text_into_chunks(text, max_token_size, idx = None):
     
     # support spliting into sentences as well
     if max_token_size == "sentence":
        return split_text_into_sentences(text)
+    elif max_token_size == "sentence_cluster":
+       return split_text_into_sentece_clusters(text, idx)
+    elif isinstance(max_token_size, str):
+      raise TypeError("Only integers or 'sentence' or 'sentence_cluster' allowed")
 
     text = text.replace("\n", "") # replace linebreaks
     sentences = text.split(". ") # split sentences
@@ -73,7 +102,6 @@ def random_sentence_cut(article, tokenizer, MAX_TOKENS=512, extra_length = 0, ch
 
   return "".join(final_sentences), selected_sentences
 
-
 def start_ending_biased_sentece_cut(article, tokenizer, MAX_TOKENS=512, extra_length = 0, chunk_size = 256, *args, **kwargs):
 
   MAX_TOKENS = MAX_TOKENS - extra_length
@@ -106,7 +134,6 @@ def start_ending_biased_sentece_cut(article, tokenizer, MAX_TOKENS=512, extra_le
   final_sentences = [sentences[i] for i in selected_sentences]
 
   return "".join(final_sentences), selected_sentences
-
 
 def tf_idf_sentece_cut(article, tokenizer, query, MAX_TOKENS = 512, extra_length = 0, chunk_size = 256, *args, **kwargs):
 
@@ -145,7 +172,6 @@ def tf_idf_sentece_cut(article, tokenizer, query, MAX_TOKENS = 512, extra_length
   final_sentences = [sentences[i] for i in selected_sentences]
 
   return "".join(final_sentences), selected_sentences
-
 
 def sentence_embedding_cut(article, tokenizer, query, MAX_TOKENS = 512, extra_length = 0, chunk_size = 256, sentembb_model = None, *args, **kwargs):
     MAX_TOKENS = MAX_TOKENS - extra_length
