@@ -75,8 +75,12 @@ def split_text_into_chunks(text, max_token_size, idx = None):
 def random_sentence_cut(article, tokenizer, MAX_TOKENS=512, extra_length = 0, chunk_size = 256, *args, **kwargs):
 
   MAX_TOKENS = MAX_TOKENS - extra_length
-  
-  sentences = split_text_into_chunks(article, chunk_size)
+
+  if "idx" in kwargs:
+    idx = kwargs["idx"]
+  else:
+    idx = None
+  sentences = split_text_into_chunks(article, chunk_size, idx)
 
   # get the permutation of the sentences
   num_sentences = len(sentences)
@@ -105,8 +109,11 @@ def random_sentence_cut(article, tokenizer, MAX_TOKENS=512, extra_length = 0, ch
 def start_ending_biased_sentece_cut(article, tokenizer, MAX_TOKENS=512, extra_length = 0, chunk_size = 256, *args, **kwargs):
 
   MAX_TOKENS = MAX_TOKENS - extra_length
-
-  sentences = split_text_into_chunks(article, chunk_size)
+  if "idx" in kwargs:
+    idx = kwargs["idx"]
+  else:
+    idx = None
+  sentences = split_text_into_chunks(article, chunk_size, idx)
   num_sentences = len(sentences)
   sentence_list = list(range(num_sentences))
 
@@ -138,8 +145,11 @@ def start_ending_biased_sentece_cut(article, tokenizer, MAX_TOKENS=512, extra_le
 def tf_idf_sentece_cut(article, tokenizer, query, MAX_TOKENS = 512, extra_length = 0, chunk_size = 256, *args, **kwargs):
 
   MAX_TOKENS = MAX_TOKENS - extra_length
-
-  sentences = split_text_into_chunks(article, chunk_size)
+  if "idx" in kwargs:
+    idx = kwargs["idx"]
+  else:
+    idx = None
+  sentences = split_text_into_chunks(article, chunk_size, idx)
   num_sentences = len(sentences)
 
   # tf_idf
@@ -176,7 +186,11 @@ def tf_idf_sentece_cut(article, tokenizer, query, MAX_TOKENS = 512, extra_length
 def sentence_embedding_cut(article, tokenizer, query, MAX_TOKENS = 512, extra_length = 0, chunk_size = 256, sentembb_model = None, *args, **kwargs):
     MAX_TOKENS = MAX_TOKENS - extra_length
 
-    sentences = split_text_into_chunks(article, chunk_size)
+    if "idx" in kwargs:
+      idx = kwargs["idx"]
+    else:
+      idx = None
+    sentences = split_text_into_chunks(article, chunk_size, idx)
 
     query_embedding = sentembb_model.encode(query)
 
