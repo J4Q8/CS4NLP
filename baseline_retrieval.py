@@ -34,9 +34,7 @@ def split_text_into_sentece_clusters(text, idx, cluster_file = "sentence_cluster
   current_cluster.append(sentences[len(cluster)-1])
   sentence_clusters.append(current_cluster)
 
-  print(cluster)
-  print(sentences)
-  return sentence_clusters
+  return ["".join(cluster) for cluster in sentence_clusters]
 
 def split_text_into_chunks(text, max_token_size, idx = None):
     
